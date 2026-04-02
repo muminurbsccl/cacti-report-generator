@@ -1,0 +1,5 @@
+{
+  "name": "Cacti Report Generator",
+  "description": "Automated PDF report generation tool for Cacti network graphs with custom client mapping.",
+  "requestFramePermissions": []
+}
