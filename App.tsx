@@ -91,6 +91,18 @@ const App: React.FC = () => {
     setSelectedNodeIds(newSet);
   };
 
+  // Edit a node's bandwidth (Mbps). Raw text while typing; normalised to "N.NN Mbps" on blur.
+  const updateBandwidth = (id: string, mbps: string, normalise = false) => {
+    let text = mbps.replace(/[^0-9.]/g, '');
+    if (normalise) {
+      const n = parseFloat(text);
+      text = (isNaN(n) ? 0 : n).toFixed(2);
+    }
+    setAvailableNodes(prev => prev.map(n =>
+      n.mapping.id === id ? { ...n, mapping: { ...n.mapping, bandwidth: `${text} Mbps` } } : n
+    ));
+  };
+
   const toggleSelectAll = () => {
     if (selectedNodeIds.size === availableNodes.length) {
       setSelectedNodeIds(new Set());
@@ -457,9 +469,22 @@ const App: React.FC = () => {
                                         <h4 className={`font-bold font-mono uppercase ${isSelected ? 'text-white' : 'text-slate-400'}`}>
                                             {node.mapping.clientName}
                                         </h4>
-                                        <span className="text-xs font-mono text-cyan-500 bg-cyan-950 px-2 py-0.5 border border-cyan-900">
-                                            {node.mapping.bandwidth}
-                                        </span>
+                                        <label
+                                            className="flex items-center gap-1 text-xs font-mono text-cyan-500 bg-cyan-950 px-2 py-0.5 border border-cyan-900"
+                                            onClick={(e) => e.stopPropagation()}
+                                            title="Edit bandwidth (Mbps)"
+                                        >
+                                            <input
+                                                type="text"
+                                                inputMode="decimal"
+                                                aria-label={`Bandwidth in Mbps for ${node.mapping.clientName}`}
+                                                value={node.mapping.bandwidth.replace(/\s*Mbps$/, '')}
+                                                onChange={(e) => updateBandwidth(node.mapping.id, e.target.value)}
+                                                onBlur={(e) => updateBandwidth(node.mapping.id, e.target.value, true)}
+                                                className="w-24 bg-transparent text-right outline-none border-b border-cyan-800 focus:border-cyan-400"
+                                            />
+                                            <span>Mbps</span>
+                                        </label>
                                     </div>
                                     <div className="text-xs text-slate-500 font-mono mt-1 flex gap-4">
                                         <span>DESC: {node.mapping.description}</span>
